@@ -1,0 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class InstatiateScript : MonoBehaviour
+{
+    int floorMask;                      // A layer mask so that a ray can be cast just at gameobjects on the floor layer.
+    public GameObject bottle;
+    AudioSource itemSounds;
+    public AudioClip bottleClip;
+    public GameObject[] spawnedObjects; //never used, will be in later version of script.
+
+	void Awake ()
+    {
+        itemSounds = GetComponent<AudioSource>();
+        floorMask = LayerMask.GetMask("Ground");
+    }
+
+    void Update()
+    {
+        CreateOn();
+    }
+
+    #region Working Spawner
+    public void Create()
+    {
+        // Create a ray from the mouse cursor on screen in the direction of the camera.
+        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        // Create a RaycastHit variable to store information about what was hit by the ray.
+        RaycastHit groundHit;
+        #region Raycast
+        if ((Input.GetMouseButtonDown(1) || Input.GetKey(KeyCode.Joystick1Button4))  && Physics.Raycast(camRay, out groundHit, 200, floorMask))
+        {
+            Vector3 pos = new Vector3(groundHit.point.x, 0, groundHit.point.z); //Store position of hit in new Vector3 pos
+            Instantiate (bottle, pos, transform.rotation);                      //Instantiate bottle at 'pos' with inherited rotation.
+            itemSounds.clip = bottleClip;                                       //Take in audio clip as 'bottleClip'
+            itemSounds.Play();                                                  //Play 'bottleClip'
+        }
+        #endregion
+    }
+    #endregion
+
+    public void CreateOn()
+    {
+        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit groundHit;
+        
+        //If RMB or Right Bumper is pressed, AND the cursor is over an object on the 'floor' layer
+        if ((Input.GetMouseButtonDown(1) || Input.GetKey(KeyCode.Joystick1Button4)) && Physics.Raycast(camRay, out groundHit, 200, floorMask))
+        {
+            Vector3 dRayPos = new Vector3(groundHit.point.x, 200, groundHit.point.z);   //Vector3 starting point of ray
+            Ray detectRay = new Ray();                                                  //New ray, 'detectRay'
+            detectRay.direction = -transform.up;                                        //Specifies detectRay's direction (down)
+            RaycastHit objectHit;                                                       
+
+            if (Physics.Raycast(detectRay, out objectHit, 100))                         //If raycast of detectRay over 100 units returns true:
+                {
+                Vector3 pos = new Vector3(objectHit.point.x, 0, objectHit.point.z);     //Store position of hit in new Vector3 pos
+                Instantiate(bottle, pos, transform.rotation);                           //Instantiate bottle at 'pos' with inherited rotation.
+                itemSounds.clip = bottleClip;                                           //Take in audio clip as 'bottleClip'
+                itemSounds.Play();                                                      //Play 'bottleClip'
+            }                                             
+        }
+    }
+}
