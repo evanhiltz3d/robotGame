@@ -1,0 +1,27 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class RoofScript : MonoBehaviour
+{
+    public GameObject top;              //Reference to 'roof' group/game object.
+    private bool isInsideTrigger = false;
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            isInsideTrigger = true;     //Sets isInsideTrigger to true.
+            top.SetActive(false);       //Hides 'top' group.
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            isInsideTrigger = false;    //Toggles on exit.
+            top.SetActive(true);        //Enables 'top' group.
+        }
+    }
+}
