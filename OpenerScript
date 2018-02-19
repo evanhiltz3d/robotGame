@@ -1,0 +1,70 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class OpenerScript : MonoBehaviour {
+
+    private Animator animator;
+    public GameObject stateText = null;
+    public string OpenText = "Press 'E' to open.";
+    public string CloseText = "Press 'E' to close.";
+    private bool isOpen = false;
+    private bool isInsideTrigger = false;
+
+	void Start ()
+    {
+        animator = GetComponent<Animator>();
+        stateText.SetActive(false);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            isInsideTrigger = true;
+            stateText.SetActive(true); //Enables text visibility.
+            UpdateStateText(); //Updates stateText as per current open state.
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            isInsideTrigger = false; //Toggles on exit.
+            stateText.SetActive(false); //Disables text visibility. 
+        }
+    }
+
+    private bool IsTextActive //Returns active state of text gameObject.
+    {
+        get
+        {
+            return stateText.activeInHierarchy;
+        }
+    }
+
+    private void UpdateStateText()
+    {
+        //Gets reference to text component
+        Text panelText = stateText.GetComponent<Text>(); 
+        if (stateText.activeSelf)
+        {
+            panelText.text = isOpen ? CloseText : OpenText;  //Toggles action text.
+        }
+    }
+
+    void Update()
+    {
+        if (IsTextActive && isInsideTrigger)
+        {
+            if (Input.GetKeyDown(KeyCode.E)) 
+            {
+                isOpen = !isOpen;                           //Toggles open states.
+                Invoke("UpdateStateText", 0.5f);            //Delay between actions.
+                animator.SetBool("open", isOpen);           //Plays animation depending on state.
+            }
+        }
+    }
+}
